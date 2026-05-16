@@ -5,11 +5,19 @@ export interface User {
 
   email: string;
 
-  role: "admin" | "sales";
+  role: string;
 }
 
-export interface AuthResponse {
-  token: string;
+export interface LoginFormData {
+  email: string;
 
-  user: User;
+  password: string;
+}
+
+export interface RegisterFormData {
+  name: string;
+
+  email: string;
+
+  password: string;
 }

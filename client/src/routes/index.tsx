@@ -10,6 +10,12 @@ from "../pages/auth/LoginPage";
 import RegisterPage
 from "../pages/auth/RegisterPage";
 
+import DashboardPage
+from "../pages/dashboard/DashboardPage";
+
+import ProtectedRoute
+from "./ProtectedRoute";
+
 const AppRoutes = () => {
 
   return (
@@ -24,6 +30,17 @@ const AppRoutes = () => {
       <Route
         path="/register"
         element={<RegisterPage />}
+      />
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+
+            <DashboardPage />
+
+          </ProtectedRoute>
+        }
       />
 
       <Route
