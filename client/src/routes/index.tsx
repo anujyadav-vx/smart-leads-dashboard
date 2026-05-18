@@ -4,6 +4,9 @@ import {
   Navigate
 } from "react-router-dom";
 
+import LeadsPage
+from "../pages/dashboard/LeadsPage";
+
 import LoginPage
 from "../pages/auth/LoginPage";
 
@@ -36,6 +39,8 @@ const AppRoutes = () => {
         path="/dashboard"
         element={
           <ProtectedRoute>
+
+            <LeadsPage />
 
             <DashboardPage />
 
