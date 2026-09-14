@@ -1,169 +1,123 @@
-import {
-  useForm
-} from "react-hook-form";
-
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { registerSchema } from "../../validations/auth.validation";
-
-import {
-  zodResolver
-} from "@hookform/resolvers/zod";
-
+import { zodResolver } from "@hookform/resolvers/zod";
 import type { RegisterFormData } from "../../types/auth.types";
+import Input from "../../components/ui/Input";
+import Button from "../../components/ui/Button";
+import { registerUser } from "../../services/auth.service";
+import toast from "react-hot-toast";
+import { useNavigate, Link } from "react-router-dom";
+import { Sparkles, Eye, EyeOff } from "lucide-react";
 
-import Input
-from "../../components/ui/Input";
-
-import Button
-from "../../components/ui/Button";
-
-import {
-  registerUser
-} from "../../services/auth.service";
-
-import toast
-from "react-hot-toast";
-
-import {
-  useNavigate
-} from "react-router-dom";
+interface ExtendedRegisterData extends RegisterFormData {
+  role?: "sales" | "admin";
+}
 
 const RegisterPage = () => {
-
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: {
-      errors,
-      isSubmitting
-    }
-  } = useForm<RegisterFormData>({
-    resolver:
-      zodResolver(
-        registerSchema
-      )
+    formState: { errors, isSubmitting },
+  } = useForm<ExtendedRegisterData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      role: "sales",
+    },
   });
 
-  const onSubmit = async (
-    data: RegisterFormData
-  ) => {
-
+  const onSubmit = async (data: ExtendedRegisterData) => {
     try {
-
       await registerUser(data);
-
-      toast.success(
-        "Registration successful"
-      );
-
+      toast.success("Account created successfully! Please sign in.");
       navigate("/login");
-
-    }  catch (error: unknown) {
-
+    } catch (error: any) {
       toast.error(
-       error instanceof Error
-    ? error.message
-    : "Something went wrong"
-);
+        error?.response?.data?.message ||
+          (error instanceof Error ? error.message : "Registration failed")
+      );
     }
   };
 
   return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-4 transition-colors">
+      <div className="w-full max-w-md">
+        {/* Brand Banner */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 text-white shadow-lg shadow-indigo-500/25 mb-3">
+            <Sparkles size={24} />
+          </div>
+          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+            Join SmartLeads CRM
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Create an account to start managing your pipeline
+          </p>
+        </div>
 
-    <div
-      className="
-      min-h-screen
-      flex
-      items-center
-      justify-center
-      bg-gray-100
-    "
-    >
+        {/* Card */}
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 shadow-xl">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <Input
+              label="Full Name"
+              type="text"
+              placeholder="e.g. Jordan Bennett"
+              error={errors.name?.message}
+              {...register("name")}
+            />
 
-      <div
-        className="
-        bg-white
-        p-8
-        rounded-lg
-        shadow-md
-        w-full
-        max-w-md
-      "
-      >
+            <Input
+              label="Work Email"
+              type="email"
+              placeholder="name@company.com"
+              error={errors.email?.message}
+              {...register("email")}
+            />
 
-        <h1
-          className="
-          text-2xl
-          font-bold
-          mb-6
-          text-center
-        "
-        >
-          Register
-        </h1>
+            <div className="relative">
+              <Input
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Minimum 6 characters"
+                error={errors.password?.message}
+                {...register("password")}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-[38px] text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-        >
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              isLoading={isSubmitting}
+              className="mt-2"
+            >
+              Create Account
+            </Button>
+          </form>
+        </div>
 
-          <Input
-            label="Name"
-            type="text"
-            placeholder="Enter name"
-            {...register("name")}
-          />
-
-          {errors.name && (
-            <p className="text-red-500 text-sm mb-2">
-              {errors.name.message}
-            </p>
-          )}
-
-          <Input
-            label="Email"
-            type="email"
-            placeholder="Enter email"
-            {...register("email")}
-          />
-
-          {errors.email && (
-            <p className="text-red-500 text-sm mb-2">
-              {errors.email.message}
-            </p>
-          )}
-
-          <Input
-            label="Password"
-            type="password"
-            placeholder="Enter password"
-            {...register("password")}
-          />
-
-          {errors.password && (
-            <p className="text-red-500 text-sm mb-4">
-              {errors.password.message}
-            </p>
-          )}
-
-          <Button
-            type="submit"
-            disabled={isSubmitting}
+        {/* Footer Link */}
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
           >
-
-            {
-              isSubmitting
-                ? "Loading..."
-                : "Register"
-            }
-
-          </Button>
-
-        </form>
-
+            Sign in
+          </Link>
+        </p>
       </div>
-
     </div>
   );
 };
